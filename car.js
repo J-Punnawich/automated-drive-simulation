@@ -11,11 +11,12 @@ class Car{
         this.friction=0.05;
         this.angle=0;   // มุม
 
-        this.controls=new Controls();
-    }
+        this.sensor=new Sensor(this);
+        this.controls=new Controls();    }
 
-    update(){
+    update(roadBorders){
         this.#move();
+        this.sensor.update(roadBorders);
     }
 
     #move(){
@@ -73,5 +74,7 @@ class Car{
         ctx.fill();
 
         ctx.restore();  // loop วนซ้ำไปเพื่อให้หมุนได้ต่อเนื่อง
+
+        this.sensor.draw(ctx);
     }
 }
