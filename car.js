@@ -9,7 +9,7 @@ class Car{
         this.acceleration=0.2;
         this.maxSpeed=3;
         this.friction=0.05;
-        this.angle=0;
+        this.angle=0;   // มุม
 
         this.controls=new Controls();
     }
@@ -53,14 +53,15 @@ class Car{
             }
         }
 
-        this.x-=Math.sin(this.angle)*this.speed;
+        // รถเคลื่อนที่ตามมุมที่เลี้ยวไป
+        this.x-=Math.sin(this.angle)*this.speed;  
         this.y-=Math.cos(this.angle)*this.speed;
     }
-
+    // drawing method
     draw(ctx){
-        ctx.save();
-        ctx.translate(this.x,this.y);
-        ctx.rotate(-this.angle);
+        ctx.save(); //save รถไว้
+        ctx.translate(this.x,this.y);  //ให้รถไปตามจุด x,y
+        ctx.rotate(-this.angle);  // rotate ไปตาม -angle
 
         ctx.beginPath();
         ctx.rect(
@@ -71,6 +72,6 @@ class Car{
         );
         ctx.fill();
 
-        ctx.restore();
+        ctx.restore();  // loop วนซ้ำไปเพื่อให้หมุนได้ต่อเนื่อง
     }
 }
