@@ -1,23 +1,45 @@
-const canvas=document.getElementById("myCanvas");
-canvas.width=200;
+const carCanvas=document.getElementById("carCanvas");
+carCanvas.width=200;
+const networkCanvas=document.getElementById("networkCanvas");
+networkCanvas.width=300;
 
-const ctx = canvas.getContext("2d");
-const road=new Road(canvas.width/2,canvas.width*0.9);
-const car=new Car(road.getLaneCenter(1),100,30,50);
+
+const carCtx = carCanvas.getContext("2d");
+const networkCtx = networkCanvas.getContext("2d");
+
+const road=new Road(carCanvas.width/2,carCanvas.width*0.9);
+const car=new Car(road.getLaneCenter(1),100,30,50,"AI");
+const traffic=[                                           // สร้างรถในถนน
+    new Car(road.getLaneCenter(1),-100,30,50,"CAR",Math.random()+0.5*2)
+];
 
 animate();
 
-function animate(){
-    
-    car.update(road.borders);    
-    canvas.height=window.innerHeight;
+function animate(time){
 
-    ctx.save();
-    ctx.translate(0,-car.y+canvas.height*0.7);
+    // สร้างรถคันอื่นๆกับข้อมูล lane
+    for(let i=0;i<traffic.length;i++){
+        traffic[i].update(road.borders,[]);
+    }
 
-    road.draw(ctx);
-    car.draw(ctx);
+    car.update(road.borders,traffic);
 
-    ctx.restore();
+    carCanvas.height=window.innerHeight;
+    networkCanvas.height=window.innerHeight;
+
+
+    carCtx.save();
+    carCtx.translate(0,-car.y+carCanvas.height*0.7);
+
+    road.draw(carCtx);
+    for(let i=0;i<traffic.length;i++){  // รถในถนน
+        traffic[i].draw(carCtx,"blue");
+    }
+    car.draw(carCtx,"black");
+
+    carCtx.restore();
+
+    networkCtx.lineDashOffset=-time/50;
+    Visualizer.drawNetwork(networkCtx,car.brain);
     requestAnimationFrame(animate);
 }

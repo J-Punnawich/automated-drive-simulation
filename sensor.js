@@ -9,19 +9,24 @@ class Sensor{
         this.readings=[];
     }
 
-    update(roadBorders){
+    update(roadBorders,traffic){
         this.#createtRays();
         this.readings=[];
+        // ลูปข้อมูลเส้น sensor กับถนน
         for(let i=0;i<this.rays.length;i++){
             this.readings.push(
-                this.#getReading(this.rays[i],roadBorders)
+                this.#getReading(
+                    this.rays[i],
+                    roadBorders,
+                    traffic)
             );
         }
+        
     }
 
-    #getReading(ray,roadBorders){
+    #getReading(ray,roadBorders,traffic){
         let touches=[];
-
+        // เอา sensor มาลูปกับ ขอบถนน 
         for(let i=0;i<roadBorders.length;i++){
             const touch=getIntersection(
                 ray[0],
@@ -29,20 +34,39 @@ class Sensor{
                 roadBorders[i][0],
                 roadBorders[i][1]
             );
+            // เช็คว่า sensor เจอขอบถนนไหม
             if(touch){
                 touches.push(touch);
             }
         }
-        // เช็คว่าชนไหม
+
+        for(let i=0;i<traffic.length;i++){      // ลูปข้อมุลรถคันอื่น
+            const poly=traffic[i].polygon;      // ให้ poly = ขนาดของรถคันอื่นๆด้วยฟังชั่น polygon
+
+            for(let j=0;j<poly.length;j++){     // ลูปเช็คแต่ละมุมของรถคันอื่น
+                const value=getIntersection(
+                    ray[0],
+                    ray[1],
+                    poly[j],
+                    poly[(j+1)%poly.length]
+                );
+                if(value){
+                    touches.push(value);
+                }
+            }
+        }
+    
+
+        // เช็คว่าเจอไหม
         if(touches.length==0){
             return null;
-        }else{
+        }else{  
             const offsets=touches.map(e=>e.offset); // map sensor กับค่าระยะห่าง
             const minOffset=Math.min(...offsets);  // หาค่าระยะห่างที่น้อยที่สุดโดย ใส่ offset ทั้งหมด
             return touches.find(e=>e.offset==minOffset);  // ให้ .find sensorที่มีระยะห่างน้อยสุด
         }
     }
-
+    // สร้างเส้น sensor
     #createtRays(){
         this.rays=[];
         for(let i=0;i<this.rayCount;i++){
@@ -64,7 +88,7 @@ class Sensor{
     }
 
     draw(ctx){
-        // sensor 
+        // sensor road detect
         for(let i=0;i<this.rayCount;i++){
             let end=this.rays[i][1];
             if(this.readings[i]){
@@ -73,7 +97,7 @@ class Sensor{
 
             ctx.beginPath();
             ctx.lineWidth=2;
-            ctx.strokeStyle="yellow";
+            ctx.strokeStyle="green";
             ctx.moveTo(
                 this.rays[i][0].x,
                 this.rays[i][0].y
@@ -87,7 +111,7 @@ class Sensor{
         // detected  
             ctx.beginPath();
             ctx.lineWidth=2;
-            ctx.strokeStyle="black";
+            ctx.strokeStyle="yellow";
             ctx.moveTo(
                 this.rays[i][1].x,
                 this.rays[i][1].y
