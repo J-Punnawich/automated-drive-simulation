@@ -1,2 +1,2 @@
-# auto-driving-car
-learn to build auto-driving car simulator with Javascript and Neural Networks (Machine Learning)
+## auto-driving-car
+Try Machine Learning by build auto-driving car simulator w/ Js and Neural Networks
